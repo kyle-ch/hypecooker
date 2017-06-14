@@ -1,0 +1,12 @@
+<component name="ArtifactManager">
+  <artifact type="jar" build-on-make="true" name="HypeCooker:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/HypeCooker_jar</output-path>
+    <root id="archive" name="HypeCooker.jar">
+      <element id="module-output" name="HypeCooker" />
+      <element id="extracted-dir" path="$USER_HOME$/JavaJars/selenium-server-standalone-3.4.0.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$USER_HOME$/JavaJars/selenium-java-3.4.0/client-combined-3.4.0-nodeps.jar" path-in-jar="/" />
+      <element id="file-copy" path="$USER_HOME$/JavaJars/selenium-java-3.4.0/client-combined-3.4.0-nodeps.jar" />
+      <element id="file-copy" path="$USER_HOME$/JavaJars/selenium-server-standalone-3.4.0.jar" />
+    </root>
+  </artifact>
+</component>

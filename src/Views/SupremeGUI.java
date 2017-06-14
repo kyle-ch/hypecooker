@@ -114,7 +114,7 @@ public class SupremeGUI extends JFrame {
 
     labels[12] = new JLabel(itemLabelNames[0], JLabel.TRAILING);
     String[] categories = {"jackets", "shirts", "tops_sweaters", "sweatshirts", "pants", "shorts",
-            "t-shirts", "hats", "bags", "accessories", "skate"};
+            "t-shirts", "hats", "bags", "accessories", "shoes", "skate"};
     JComboBox<String> categoryBox = new JComboBox(categories);
     categoryBox.addActionListener(e -> enteredData[12] = (String) categoryBox.getSelectedItem());
     labels[12].setLabelFor(categoryBox);

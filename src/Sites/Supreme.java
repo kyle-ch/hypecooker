@@ -22,23 +22,24 @@ public class Supreme implements WebsiteScript {
   private WebDriver driver;
   private String supremeHome = "https://www.supremenewyork.com/shop/all/";
 
-  /**
+  /** Constructor for Supreme class with information entered.
    *
-   * @param name
-   * @param email
-   * @param phoneNumber
-   * @param address
-   * @param address2
-   * @param zipcode
-   * @param ccType
-   * @param ccNumber
-   * @param ccMonth
-   * @param ccYear
-   * @param cvv
-   * @param category
-   * @param keyword
-   * @param color
-   * @param size
+   * @param name  Entered name.
+   * @param email Entered email.
+   * @param phoneNumber Entered phone number.
+   * @param address Entered address.
+   * @param address2 Entered apartment/address line 2.
+   * @param zipcode Entered zip code.
+   * @param ccType Entered credit card type.
+   * @param ccNumber Entered credit card number.
+   * @param ccMonth Entered credit card expiry month.
+   * @param ccYear Entered credit card expiry year.
+   * @param cvv Entered cvv.
+   * @param category Item category.
+   * @param keyword Item keyword.
+   * @param color Item color.
+   * @param size Item size.
+   * @param sizeRequired Is the size required?
    */
   public Supreme(String name, String email, String phoneNumber, String address, String address2,
                  String zipcode, String ccType, String ccNumber, String ccMonth, String ccYear,
@@ -123,6 +124,10 @@ public class Supreme implements WebsiteScript {
     driver.findElement(new By.ById("vval")).sendKeys(cvv);
   }
 
+  /**
+   * Helper method that waits for the given runnable to execute successfully.
+   * @param r the given runnable
+   */
   private void waitForLoad(Runnable r) {
     while (true) {
       try {

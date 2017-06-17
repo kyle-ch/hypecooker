@@ -1,8 +1,11 @@
 package Views;
 
+import org.apache.commons.lang3.ArrayUtils;
+
 import java.awt.*;
 import java.awt.event.ActionListener;
 import java.text.ParseException;
+import java.util.prefs.Preferences;
 
 import javax.swing.*;
 import javax.swing.text.MaskFormatter;
@@ -17,6 +20,7 @@ public class SupremeGUI extends JFrame {
           "Apartment", "Zip Code"};
   private String[] ccLabelNames = {"Credit Card Type", "Credit Card Number", "ccMonth", "ccYear", "ccv"};
   private String[] itemLabelNames = {"Category", "Keyword", "Color", "Size"};
+  private Preferences pref = Preferences.userRoot().node(this.getClass().getName());
 
   /**
    * Method to render the gui.
@@ -29,7 +33,7 @@ public class SupremeGUI extends JFrame {
     JPanel panel = new JPanel(new SpringLayout());
     for (int i = 0; i < labelNames.length; i++) {
       labels[i] = new JLabel(labelNames[i], JLabel.TRAILING);
-      fields[i] = new JTextField(10);
+      fields[i] = new JTextField(pref.get(labelNames[i], ""), 10);
       labels[i].setLabelFor(fields[i]);
       panel.add(labels[i]);
       panel.add(fields[i]);
@@ -46,6 +50,8 @@ public class SupremeGUI extends JFrame {
     JLabel ccTypeLabel = new JLabel(ccLabelNames[0], JLabel.TRAILING);
     String[] types = {"Visa", "American Express", "Mastercard"};
     JComboBox<String> ccTypeBox = new JComboBox(types);
+    ccTypeBox.setEditable(true);
+    ccTypeBox.setSelectedItem(pref.get(ccLabelNames[0], ""));
     ccTypeBox.addActionListener(e -> enteredData[7] = (String) ccTypeBox.getSelectedItem());
     ccTypeLabel.setLabelFor(ccTypeBox);
     ccPanel.add(ccTypeLabel);
@@ -59,6 +65,7 @@ public class SupremeGUI extends JFrame {
     }
     fields[8] = new JFormattedTextField(ccNumberFmt);
     fields[8].setColumns(16);
+    fields[8].setText(pref.get(ccLabelNames[1], ""));
     labels[8] = new JLabel(ccLabelNames[1], JLabel.TRAILING);
     labels[8].setLabelFor(fields[8]);
     ccPanel.add(labels[8]);
@@ -73,6 +80,7 @@ public class SupremeGUI extends JFrame {
     }
     fields[9] = new JFormattedTextField(ccMonthFmt);
     fields[9].setColumns(2);
+    fields[9].setText(pref.get(ccLabelNames[2], ""));
     labels[9] = new JLabel("MM/YYYY", JLabel.TRAILING);
     labels[9].setLabelFor(ccDatePanel);
     ccPanel.add(labels[9]);
@@ -86,6 +94,7 @@ public class SupremeGUI extends JFrame {
     }
     fields[10] = new JFormattedTextField(ccYearFmt);
     fields[10].setColumns(4);
+    fields[10].setText(pref.get(ccLabelNames[3], ""));
     ccDatePanel.add(fields[10]);
 
     ccPanel.add(ccDatePanel);
@@ -98,6 +107,7 @@ public class SupremeGUI extends JFrame {
     }
     fields[11] = new JFormattedTextField(ccvFmt);
     fields[11].setColumns(4);
+    fields[11].setText(pref.get(ccLabelNames[4], ""));
     labels[11] = new JLabel(ccLabelNames[4], JLabel.TRAILING);
     labels[11].setLabelFor(fields[11]);
     ccPanel.add(labels[11]);
@@ -160,7 +170,20 @@ public class SupremeGUI extends JFrame {
     JPanel submitPanel = new JPanel();
     Button submit = new Button("GO!");
     ActionListener submitAction = e -> {
-      for (int i = 0; i < labelNames.length + ccLabelNames.length + itemLabelNames.length; i++) {
+      Supreme s = new Supreme(enteredData[0] + " " + enteredData[1], enteredData[2], enteredData[3],
+              enteredData[4], enteredData[5], enteredData[6], enteredData[7], enteredData[8],
+              enteredData[9], enteredData[10], enteredData[11], enteredData[12], enteredData[13],
+              enteredData[14], enteredData[15], sizeRequiredBox.getState());
+      s.run();
+    };
+    submit.addActionListener(submitAction);
+
+    Button saveButton = new Button("Save");
+    JLabel saveLabel = new JLabel("Save", JLabel.TRAILING);
+    saveLabel.setLabelFor(saveButton);
+    String allLabels[] = ArrayUtils.addAll((ArrayUtils.addAll(labelNames, ccLabelNames)), itemLabelNames);
+    saveButton.addActionListener(e -> {
+      for (int i = 0; i < allLabels.length; i++) {
         if (i == 7) {
           enteredData[i] = (String) ccTypeBox.getSelectedItem();
         } else if (i == 12) {
@@ -170,32 +193,20 @@ public class SupremeGUI extends JFrame {
         } else {
           enteredData[i] = fields[i].getText();
         }
+        pref.put(allLabels[i], enteredData[i]);
         System.out.println(enteredData[i]);
       }
-      Supreme s = new Supreme(enteredData[0] + " " + enteredData[1], enteredData[2], enteredData[3],
-              enteredData[4], enteredData[5], enteredData[6], enteredData[7], enteredData[8],
-              enteredData[9], enteredData[10], enteredData[11], enteredData[12], enteredData[13],
-              enteredData[14], enteredData[15], sizeRequiredBox.getState());
-      s.run();
-    };
-    submit.addActionListener(submitAction);
-
-    Button resetButton = new Button("Reset");
-    resetButton.addActionListener(e -> {
-      submit.removeActionListener(submit.getActionListeners()[0]);
-      submit.setLabel("GO!");
-      submit.addActionListener(submitAction);
+      saveLabel.setText("SAVED!");
     });
-    JLabel resetLabel = new JLabel("Reset", JLabel.TRAILING);
-    resetLabel.setLabelFor(resetButton);
+
+
+    submitPanel.add(saveLabel);
+    submitPanel.add(saveButton);
 
     JLabel submitLabel = new JLabel("Submit", JLabel.TRAILING);
     submitPanel.add(submitLabel);
     submitPanel.add(submit);
     submitLabel.setLabelFor(submit);
-
-    submitPanel.add(resetLabel);
-    submitPanel.add(resetButton);
 
     JPanel container = new JPanel();
     container.setLayout(new BoxLayout(container, BoxLayout.X_AXIS));

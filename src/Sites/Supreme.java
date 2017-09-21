@@ -6,6 +6,8 @@ import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.interactions.Action;
+import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.Select;
 
 import java.util.List;
@@ -18,27 +20,29 @@ public class Supreme implements WebsiteScript {
 
   private String name, email, phoneNumber, address, address2, zipcode, ccType, ccNumber, ccMonth,
           ccYear, cvv, category, keyword, color, size;
+  private SupremeItem items;
   private boolean sizeRequired;
   private WebDriver driver;
   private String supremeHome = "https://www.supremenewyork.com/shop/all/";
 
-  /** Constructor for Supreme class with information entered.
+  /**
+   * Constructor for Supreme class with information entered.
    *
-   * @param name  Entered name.
-   * @param email Entered email.
-   * @param phoneNumber Entered phone number.
-   * @param address Entered address.
-   * @param address2 Entered apartment/address line 2.
-   * @param zipcode Entered zip code.
-   * @param ccType Entered credit card type.
-   * @param ccNumber Entered credit card number.
-   * @param ccMonth Entered credit card expiry month.
-   * @param ccYear Entered credit card expiry year.
-   * @param cvv Entered cvv.
-   * @param category Item category.
-   * @param keyword Item keyword.
-   * @param color Item color.
-   * @param size Item size.
+   * @param name         Entered name.
+   * @param email        Entered email.
+   * @param phoneNumber  Entered phone number.
+   * @param address      Entered address.
+   * @param address2     Entered apartment/address line 2.
+   * @param zipcode      Entered zip code.
+   * @param ccType       Entered credit card type.
+   * @param ccNumber     Entered credit card number.
+   * @param ccMonth      Entered credit card expiry month.
+   * @param ccYear       Entered credit card expiry year.
+   * @param cvv          Entered cvv.
+   * @param category     Item category.
+   * @param keyword      Item keyword.
+   * @param color        Item color.
+   * @param size         Item size.
    * @param sizeRequired Is the size required?
    */
   public Supreme(String name, String email, String phoneNumber, String address, String address2,
@@ -85,32 +89,37 @@ public class Supreme implements WebsiteScript {
     }
     if (sizeRequired) {
       waitForLoad(() -> {
-        while (true) {
           try {
-            WebElement sizeDropdown = driver.findElement(new By.ById("size"));
+            WebElement sizeDropdown = driver.findElement(new By.ById("s"));
             Select sizeSelect = new Select(sizeDropdown);
             sizeSelect.selectByVisibleText(size);
-            break;
           } catch (NoSuchElementException e) {
-            // do nothing
+            e.printStackTrace();
           }
-        }
-      });
+        });
     }
     waitForLoad(() -> driver.findElement(new By.ByXPath("//input[@value='add to cart']")).click());
     waitForLoad(() -> driver.findElement(new By.ByClassName("checkout")).click());
     waitForLoad(() -> driver.findElement(new By.ById("order_billing_name")).sendKeys(name));
     driver.findElement(new By.ById("order_email")).sendKeys(email);
-    driver.findElement(new By.ById("order_tel")).sendKeys(phoneNumber);
+    driver.findElement(new By.ById("order_tel")).click();
+    driver.findElement(new By.ById("order_tel")).sendKeys(phoneNumber.substring(0, 2));
+    driver.findElement(new By.ById("order_tel")).sendKeys(phoneNumber.substring(2));
     driver.findElement(new By.ById("bo")).sendKeys(address);
     driver.findElement(new By.ById("oba3")).sendKeys(address2);
     driver.findElement(new By.ById("order_billing_zip")).sendKeys(zipcode);
 
-    Select cardSelect = new Select(driver.findElement(new By.ById(
-            "credit_card_type")));
-    cardSelect.selectByVisibleText(ccType);
+   // Select cardSelect = new Select(driver.findElement(new By.ById(
+    //       "credit_card_type")));
+     //cardSelect.selectByVisibleText(ccType);
+    // TODO
     driver.findElement(new By.ById("cnb")).click();
-    driver.findElement(new By.ById("cnb")).sendKeys(ccNumber);
+    driver.findElement(new By.ById("cnb")).clear();
+    for (int i = 0; i < 16; i++) {
+      driver.findElement(new By.ById("cnb")).sendKeys(Character.toString(ccNumber.charAt(i)));
+    }
+    driver.findElement(new By.ById("cnb")).sendKeys(ccNumber.substring(0, 14));
+    driver.findElement(new By.ById("cnb")).sendKeys(ccNumber.substring(14));
     if (ccMonth.length() < 2) {
       ccMonth = "0" + ccMonth;
     }
@@ -122,10 +131,16 @@ public class Supreme implements WebsiteScript {
     yearSelect.selectByVisibleText(ccYear);
 
     driver.findElement(new By.ById("vval")).sendKeys(cvv);
+    Actions action = new Actions(driver);
+    WebElement orderTerms = driver.findElement(new By.ById("order_terms"));
+    action.moveToElement(orderTerms).click().build().perform();
+
+    //driver.findElement(new By.ByClassName("checkout")).click();
   }
 
   /**
    * Helper method that waits for the given runnable to execute successfully.
+   *
    * @param r the given runnable
    */
   private void waitForLoad(Runnable r) {

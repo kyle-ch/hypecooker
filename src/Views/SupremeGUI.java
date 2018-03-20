@@ -5,12 +5,15 @@ import org.apache.commons.lang3.ArrayUtils;
 import java.awt.*;
 import java.awt.event.ActionListener;
 import java.text.ParseException;
+import java.util.List;
+import java.util.ArrayList;
 import java.util.prefs.Preferences;
 
 import javax.swing.*;
 import javax.swing.text.MaskFormatter;
 
 import Sites.Supreme;
+import Sites.SupremeItem;
 
 /**
  * GUI for Supreme bot.
@@ -21,6 +24,7 @@ public class SupremeGUI extends JFrame {
   private String[] ccLabelNames = {"Credit Card Type", "Credit Card Number", "ccMonth", "ccYear", "ccv"};
   private String[] itemLabelNames = {"Category", "Keyword", "Color", "Size"};
   private Preferences pref = Preferences.userRoot().node(this.getClass().getName());
+  private List<SupremeItem> items = new ArrayList<SupremeItem>();
 
   /**
    * Method to render the gui.
@@ -168,21 +172,12 @@ public class SupremeGUI extends JFrame {
 
     // Submit Panel
     JPanel submitPanel = new JPanel();
-    Button submit = new Button("GO!");
-    ActionListener submitAction = e -> {
-      Supreme s = new Supreme(enteredData[0] + " " + enteredData[1], enteredData[2], enteredData[3],
-              enteredData[4], enteredData[5], enteredData[6], enteredData[7], enteredData[8],
-              enteredData[9], enteredData[10], enteredData[11], enteredData[12], enteredData[13],
-              enteredData[14], enteredData[15], sizeRequiredBox.getState());
-      s.run();
-    };
-    submit.addActionListener(submitAction);
 
     Button saveButton = new Button("Save");
     JLabel saveLabel = new JLabel("Save", JLabel.TRAILING);
     saveLabel.setLabelFor(saveButton);
     String allLabels[] = ArrayUtils.addAll((ArrayUtils.addAll(labelNames, ccLabelNames)), itemLabelNames);
-    saveButton.addActionListener(e -> {
+    ActionListener saveAction = e -> {
       for (int i = 0; i < allLabels.length; i++) {
         if (i == 7) {
           enteredData[i] = (String) ccTypeBox.getSelectedItem();
@@ -197,7 +192,47 @@ public class SupremeGUI extends JFrame {
         System.out.println(enteredData[i]);
       }
       saveLabel.setText("SAVED!");
-    });
+      panel.repaint();
+    };
+    saveButton.addActionListener(saveAction);
+
+    JLabel itemsLoaded = new JLabel("No items loaded yet");
+    Button addItem = new Button("Add Item");
+    ActionListener addItemAction = e -> {
+      SupremeItem s = new SupremeItem(enteredData[12], enteredData[13],
+              enteredData[14], enteredData[15], sizeRequiredBox.getState());
+      items.add(s);
+      itemsLoaded.setText("Number of items loaded: " + items.size());
+      for (SupremeItem i : items) {
+        System.out.println(i.toString());
+      }
+    };
+
+    addItem.addActionListener(saveAction);
+    addItem.addActionListener(addItemAction);
+    JLabel addItemLabel = new JLabel("Add Item", SwingConstants.TRAILING);
+
+    Button removeLast = new Button("Remove");
+    ActionListener removeLastAction = e -> {
+      if (items.size() > 0) {
+        items.remove(items.size() - 1);
+      }
+      itemsLoaded.setText("Number of items loaded: " + items.size());
+    };
+    removeLast.addActionListener(removeLastAction);
+    JLabel removeLastLabel = new JLabel("Remove Last Item");
+
+
+
+    Button submit = new Button("GO!");
+    ActionListener submitAction = e -> {
+      Supreme s = new Supreme(enteredData[0] + " " + enteredData[1], enteredData[2], enteredData[3],
+              enteredData[4], enteredData[5], enteredData[6], enteredData[7], enteredData[8],
+              enteredData[9], enteredData[10], enteredData[11], items);
+      s.run();
+    };
+    submit.addActionListener(saveAction);
+    submit.addActionListener(submitAction);
 
 
     submitPanel.add(saveLabel);
@@ -207,6 +242,17 @@ public class SupremeGUI extends JFrame {
     submitPanel.add(submitLabel);
     submitPanel.add(submit);
     submitLabel.setLabelFor(submit);
+
+    submitPanel.add(addItemLabel);
+    submitPanel.add(addItem);
+    addItemLabel.setLabelFor(addItem);
+
+    submitPanel.add(removeLastLabel);
+    submitPanel.add(removeLast);
+    removeLastLabel.setLabelFor(removeLast);
+
+
+    submitPanel.add(itemsLoaded);
 
     JPanel container = new JPanel();
     container.setLayout(new BoxLayout(container, BoxLayout.X_AXIS));
